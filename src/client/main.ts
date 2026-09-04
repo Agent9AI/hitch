@@ -9,6 +9,7 @@ import "./style.css";
 import type { Capability, CapabilitiesResponse, CapabilitySource } from "./types/capability";
 import { fetchCapabilities, connectSource } from "./lib/api";
 import { audit, onAudit, auditCounts, type AuditEvent } from "./lib/audit/events";
+import { scanForCredentials } from "./lib/audit/leakcheck";
 import { isWebMCPSupported, webmcpSurface } from "./lib/webmcp/support";
 import {
   projectCapability,
@@ -433,6 +434,21 @@ async function boot() {
     const data: CapabilitiesResponse = await fetchCapabilities();
     sources = data.sources;
     capabilities = data.capabilities;
+
+    // Not a slogan: scan what the bridge actually sent us and report what we find.
+    const leaks = scanForCredentials(data);
+    const stat = $("stat-credentials");
+    stat.textContent = String(leaks.count);
+    stat.classList.toggle("green", leaks.count === 0);
+    stat.title =
+      leaks.count === 0
+        ? "Scanned every field of the discovery response. No capability endpoints and no credential-shaped values were present."
+        : `Found: ${leaks.findings.join("; ")}`;
+    const label = stat.parentElement?.querySelector(".l");
+    if (label) {
+      label.textContent =
+        leaks.count === 0 ? "Credentials found in this page" : "Credentials leaked to this page";
+    }
   } catch (err: any) {
     $("capabilities").innerHTML = `<div class="lease-empty">Discovery failed: ${esc(
       err?.message ?? err,
@@ -440,9 +456,6 @@ async function boot() {
   }
 
   renderAll();
-
-  // The page holds exactly zero service credentials, and says so out loud.
-  $("stat-credentials").textContent = "0";
 }
 
 boot();

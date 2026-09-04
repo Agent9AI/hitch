@@ -15,13 +15,30 @@ Everything is built, deployed and verified. This is what you need and nothing el
 
 ## Verified working as of this handoff
 
+- **13 integration tests and 6 unit tests, all passing against the live site.** Run
+  `npm test` yourself. The integration suite drives the real page against a strict,
+  spec-faithful WebMCP host and asserts registration, contract fidelity, response shape,
+  auditing, failure handling and revocation.
 - 2 live MCP sources, 7 capabilities discovered over real MCP Streamable HTTP
 - Real read (live Wikipedia), real generation (Workers AI Llama 3.3 70B), real durable write (KV)
 - n8n capabilities executing end to end through the bridge, ~700ms to 1.1s
 - Opaque n8n contracts harmonised into clean typed JSON Schemas
 - Connect-your-own-MCP working, with SSRF guard and expiring credential handles
 - SSRF guard rejects http, localhost, RFC1918, link-local, `.local`
-- Client bundle 11 KB, zero credentials in it
+- Client bundle 13 KB. A test asserts it ships no absolute URL, no token material and no
+  reference to the n8n endpoint.
+
+## Three conformance bugs the tests caught
+
+Worth knowing, because they are the strongest thing to say if a judge asks about rigour:
+
+1. `execute()` was returning a bare string. The specification requires a content-block
+   response, so **every tool result would have been malformed in a real WebMCP browser.**
+2. `getTools()` was being treated as synchronous when it returns a promise.
+3. A failing capability threw away the source's own error message before it reached the agent.
+
+None of these were findable by clicking around, because no WebMCP browser was available to
+click in. They were found by writing a strict host and running the real page against it.
 
 ## Test it in 90 seconds
 
@@ -51,6 +68,14 @@ Two shots worth getting right:
 - [ ] Repo URL: `https://github.com/Agent9AI/hitch`
 - [ ] Paste the text from [docs/DEVPOST.md](DEVPOST.md)
 - [ ] Confirm the MIT badge shows in the repo's About sidebar
+
+## One optional upgrade, deliberately not taken
+
+The strongest possible n8n beat would be a capability that reaches a service only n8n can see,
+for example something on eagle's private network, to prove "your browser cannot reach this;
+n8n is inside." It was skipped because adding a tool requires an n8n restart, which means a
+15 to 20 minute outage on the Pi, and the current n8n source already works. If you want it
+later, it is a workflow edit plus a restart, and worth about 20 minutes.
 
 ## Two things to know
 

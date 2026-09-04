@@ -144,6 +144,30 @@ test("the demo set grants exactly the three capabilities the prompt needs", asyn
   ]);
 });
 
+test("the client bundle contains no capability endpoint and no credential", async () => {
+  const bundle = await page.evaluate(async () => {
+    const sources = [...document.querySelectorAll("script[src]")].map((s) => s.src);
+    const texts = await Promise.all(sources.map((u) => fetch(u).then((r) => r.text())));
+    return texts.join("\n");
+  });
+
+  // Cloudflare injects its own RUM beacon; everything else must be ours.
+  const urls = [...new Set(bundle.match(/https?:\/\/[^\s"'`)]+/g) ?? [])].filter(
+    (u) => !u.includes("cloudflareinsights.com"),
+  );
+  assert.deepEqual(urls, [], `client bundle should ship no absolute URLs, found: ${urls}`);
+
+  assert.equal(bundle.match(/MCP_N8N|Bearer\s+[A-Za-z0-9]/g), null, "no token material");
+  assert.ok(!bundle.includes("n8n.agent9.dev"), "the n8n endpoint must not reach the browser");
+});
+
+test("the page reports a real credential scan, not a hardcoded zero", async () => {
+  const value = await page.textContent("#stat-credentials");
+  const tooltip = await page.getAttribute("#stat-credentials", "title");
+  assert.equal(value.trim(), "0");
+  assert.match(tooltip, /scanned/i, "the number must come from an actual scan");
+});
+
 test("revoke all clears every lease at once", async () => {
   await page.click("#revoke-all");
   await page.waitForTimeout(400);
