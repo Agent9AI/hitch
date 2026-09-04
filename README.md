@@ -271,6 +271,16 @@ Without a WebMCP browser the page still works: discovery and execution are real,
 **Local test call** panel invokes the exact closure that was handed to `registerTool`. Grants
 made without WebMCP present are labelled `local only` rather than pretending an agent can see them.
 
+## Inspect any MCP source
+
+```bash
+node scripts/inspect-mcp.mjs https://your-server.example.com/mcp
+MCP_TOKEN=... node scripts/inspect-mcp.mjs https://your-server.example.com/mcp
+```
+
+Prints what a source advertises and what Hitch would project after harmonisation. The fastest
+way to see whether a source publishes a contract an agent can actually use.
+
 ## Tests
 
 The WebMCP surface is the thing this project is built on, so it is the thing the tests
