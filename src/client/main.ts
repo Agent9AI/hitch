@@ -10,6 +10,7 @@ import type { Capability, CapabilitiesResponse, CapabilitySource } from "./types
 import { fetchCapabilities, connectSource } from "./lib/api";
 import { audit, onAudit, auditCounts, type AuditEvent } from "./lib/audit/events";
 import { scanForCredentials } from "./lib/audit/leakcheck";
+import { startTour, tourFromUrl } from "./lib/tour/tour";
 import { isWebMCPSupported, webmcpSurface } from "./lib/webmcp/support";
 import {
   projectCapability,
@@ -96,6 +97,9 @@ function renderSources() {
 
 /* ----------------------------- capabilities ----------------------------- */
 
+let filterRisk = "all";
+let searchQuery = "";
+
 function renderCapabilities() {
   const host = $("capabilities");
 
@@ -105,10 +109,49 @@ function renderCapabilities() {
     return;
   }
 
-  host.innerHTML = capabilities
+  const filtered = capabilities.filter((c) => {
+    if (filterRisk !== "all" && c.risk !== filterRisk) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return (
+        c.name.toLowerCase().includes(q) ||
+        c.title.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  if (!filtered.length) {
+    host.innerHTML = `<div class="lease-empty">No capabilities match the current filter "${esc(searchQuery || filterRisk)}".</div>`;
+    $("cap-meta").textContent = `0 of ${capabilities.length} shown`;
+    return;
+  }
+
+  host.innerHTML = filtered
     .map((c) => {
       const on = isProjected(c.name);
       const busy = running.has(c.name);
+      const schemaProps = (c.inputSchema?.properties as Record<string, unknown> | undefined) ?? {};
+      const props = Object.keys(schemaProps);
+      const reqList = Array.isArray(c.inputSchema?.required)
+        ? (c.inputSchema.required as string[])
+        : [];
+      const reqs = new Set<string>(reqList);
+      const paramsHtml =
+        props.length > 0
+          ? `<div class="cap-params">` +
+            props
+              .map(
+                (p) =>
+                  `<span class="param-chip ${reqs.has(p) ? "req" : ""}"><span class="p-name">${esc(
+                    p,
+                  )}</span>${reqs.has(p) ? '<span class="req-star">*</span>' : ""}</span>`,
+              )
+              .join("") +
+            `</div>`
+          : "";
+
       return `
         <div class="cap ${on ? "on" : ""} ${busy ? "running" : ""}" data-cap="${esc(c.name)}">
           <div class="cap-top">
@@ -126,6 +169,7 @@ function renderCapabilities() {
             </button>
           </div>
           <div class="cap-desc">${esc(c.description)}</div>
+          ${paramsHtml}
           <div class="tags">
             <span class="tag ${esc(c.risk)}">${esc(RISK_LABEL[c.risk] ?? c.risk)}</span>
             <span class="tag src">${esc(c.source.label)}</span>
@@ -134,7 +178,10 @@ function renderCapabilities() {
     })
     .join("");
 
-  $("cap-meta").textContent = `${capabilities.length} discovered`;
+  $("cap-meta").textContent =
+    filtered.length === capabilities.length
+      ? `${capabilities.length} discovered`
+      : `${filtered.length} of ${capabilities.length} shown`;
 
   host.querySelectorAll<HTMLButtonElement>("button[data-grant]").forEach((btn) => {
     btn.addEventListener("click", () => toggle(btn.dataset.grant!));
@@ -395,6 +442,8 @@ $("copy-prompt").addEventListener("click", async () => {
   setTimeout(() => (btn.textContent = "Copy prompt"), 1600);
 });
 
+$("tour-start").addEventListener("click", () => startTour());
+
 $("revoke-all").addEventListener("click", () => {
   projectedNames().forEach((name) => {
     const cap = capabilities.find((c) => c.name === name);
@@ -455,7 +504,35 @@ async function boot() {
     )}</div>`;
   }
 
+  initCapFilters();
   renderAll();
+
+  // `?tour=1` opens the walkthrough straight away, which is what the link in
+  // the README and the Devpost submission points at.
+  const from = tourFromUrl();
+  if (from !== null) setTimeout(() => startTour(from), 500);
+}
+
+function initCapFilters() {
+  const search = $<HTMLInputElement>("cap-search");
+  if (search) {
+    search.addEventListener("input", () => {
+      searchQuery = search.value.trim();
+      renderCapabilities();
+    });
+  }
+
+  const filters = $("cap-filters");
+  if (filters) {
+    filters.querySelectorAll<HTMLButtonElement>("button[data-filter]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filters.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        filterRisk = btn.dataset.filter || "all";
+        renderCapabilities();
+      });
+    });
+  }
 }
 
 boot();

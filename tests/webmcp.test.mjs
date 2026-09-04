@@ -168,6 +168,50 @@ test("the page reports a real credential scan, not a hardcoded zero", async () =
   assert.match(tooltip, /scanned/i, "the number must come from an actual scan");
 });
 
+test("the guided tour drives the real controls, not a simulation", async () => {
+  await page.click("#revoke-all");
+  await page.waitForTimeout(300);
+
+  await page.click("#tour-start");
+  await page.waitForSelector(".tour-card", { timeout: 10000 });
+
+  // Step through to the grant step.
+  for (let i = 0; i < 4; i += 1) {
+    await page.click('[data-tour="next"]');
+    await page.waitForTimeout(1400);
+  }
+
+  // The tour clicked the real Grant control, so real tools must now be
+  // registered with the WebMCP host.
+  const names = (await registered()).map((t) => t.name).sort();
+  assert.deepEqual(names, [
+    "create_project_task",
+    "draft_launch_announcement",
+    "research_company",
+  ]);
+
+  const say = await page.textContent(".tour-say");
+  assert.ok(say.length > 40, "each step should carry a line to say");
+
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator(".tour-root.open").count(), 0, "Escape should exit the tour");
+});
+
+test("the tour script fits inside the three minute limit", async () => {
+  const clock = await page.evaluate(async () => {
+    document.getElementById("tour-start").click();
+    await new Promise((r) => setTimeout(r, 900));
+    const text = document.querySelector(".tour-clock").textContent;
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    return text;
+  });
+
+  const total = clock.split("/")[1].trim();
+  const [minutes, seconds] = total.split(":").map(Number);
+  assert.ok(minutes * 60 + seconds < 180, `scripted runtime ${total} must be under 3:00`);
+});
+
 test("revoke all clears every lease at once", async () => {
   await page.click("#revoke-all");
   await page.waitForTimeout(400);
