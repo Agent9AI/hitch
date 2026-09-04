@@ -341,6 +341,33 @@ $("byo-connect").addEventListener("click", async () => {
   }
 });
 
+/** The three capabilities the suggested prompt needs, in the order it needs them. */
+const DEMO_SET = ["research_company", "draft_launch_announcement", "create_project_task"];
+
+$("grant-demo").addEventListener("click", async () => {
+  const btn = $<HTMLButtonElement>("grant-demo");
+  btn.disabled = true;
+  for (const name of DEMO_SET) {
+    if (!isProjected(name) && capabilities.some((c) => c.name === name)) {
+      await toggle(name);
+    }
+  }
+  btn.disabled = false;
+  renderAll();
+});
+
+$("copy-prompt").addEventListener("click", async () => {
+  const btn = $<HTMLButtonElement>("copy-prompt");
+  const text = ($("try-prompt").textContent ?? "").replace(/\s+/g, " ").trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = "Copied";
+  } catch {
+    btn.textContent = "Copy failed";
+  }
+  setTimeout(() => (btn.textContent = "Copy prompt"), 1600);
+});
+
 $("revoke-all").addEventListener("click", () => {
   projectedNames().forEach((name) => {
     const cap = capabilities.find((c) => c.name === name);
@@ -355,6 +382,14 @@ function renderAll() {
   renderSources();
   renderCapabilities();
   renderLease();
+
+  const demoBtn = $<HTMLButtonElement>("grant-demo");
+  const ready = DEMO_SET.every((n) => isProjected(n));
+  const present = DEMO_SET.filter((n) => capabilities.some((c) => c.name === n)).length;
+  demoBtn.disabled = present === 0;
+  demoBtn.textContent = ready ? "Ready for your agent" : `Grant the ${present || 3} it needs`;
+  demoBtn.classList.toggle("grant", true);
+  demoBtn.classList.toggle("on", ready);
 }
 
 async function boot() {

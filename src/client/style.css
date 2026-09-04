@@ -157,6 +157,59 @@ h1 em { font-style: normal; color: var(--accent); }
 .flow-node.lit { background: linear-gradient(180deg, var(--accent-glow), transparent 70%); }
 .flow-node.lit .v { color: var(--accent); }
 
+/* A pulse travels Source -> Control -> Surface -> Consumer on a loop, so the
+   thesis is visible before a single word is read. */
+@keyframes sweep {
+  0%, 22%, 100% { background: transparent; }
+  6% { background: linear-gradient(180deg, var(--accent-glow), transparent 72%); }
+}
+@keyframes sweepText {
+  0%, 22%, 100% { color: var(--text); }
+  6% { color: var(--accent); }
+}
+.flow-node { animation: sweep 5.4s ease-in-out infinite; }
+.flow-node .v { animation: sweepText 5.4s ease-in-out infinite; }
+.flow-node:nth-child(1), .flow-node:nth-child(1) .v { animation-delay: 0s; }
+.flow-node:nth-child(2), .flow-node:nth-child(2) .v { animation-delay: 0.42s; }
+.flow-node:nth-child(3), .flow-node:nth-child(3) .v { animation-delay: 0.84s; }
+.flow-node:nth-child(4), .flow-node:nth-child(4) .v { animation-delay: 1.26s; }
+.flow-node.lit { animation: none; }
+.flow-node.lit .v { animation: none; color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-node, .flow-node .v, .cap.running, .skeleton { animation: none !important; }
+}
+
+/* ------------------------------ try this ------------------------------- */
+
+.tryit {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid var(--line-bright);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  flex-wrap: wrap;
+}
+.tryit .lab {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex: none;
+}
+.tryit .prompt {
+  flex: 1 1 320px;
+  font-size: 14px;
+  color: var(--text);
+  min-width: 0;
+}
+.tryit button { flex: none; }
+
 /* ------------------------------- layout -------------------------------- */
 
 .grid {

@@ -4,6 +4,8 @@
 
 🔗 **Live demo: [hitch.agent9.dev](https://hitch.agent9.dev)** · MIT licensed · built for the [WebMCP Challenge](https://webmcp.devpost.com/)
 
+![Hitch: seven capabilities discovered from two MCP sources, three granted to the agent, every call audited](docs/hero.png)
+
 ---
 
 **Hitch is WebMCP in reverse.** Instead of a website handing capabilities to your agent,
@@ -157,6 +159,46 @@ browser invents is rejected at the bridge, not at the source.
 
 ---
 
+## Capability harmonisation
+
+Not every MCP source publishes a clean contract. n8n advertises every HTTP Request Tool as a
+single opaque property, with the real schema buried in the description as prose:
+
+```jsonc
+// what n8n publishes
+{
+  "inputSchema": { "type": "object", "properties": { "input": { "type": "string" } } },
+  "description": "Check current outdoor air quality... Tool expects valid stringified JSON
+                  object with 2 properties. Property names with description, type and
+                  required status: latitude: (description: Latitude in decimal degrees.,
+                  type: number, required: true), longitude: (...)"
+}
+```
+
+An agent handed that has to guess at a stringified blob. A capability layer should not pass
+that through, so [`src/worker/mcp/harmonize.ts`](src/worker/mcp/harmonize.ts) recovers the
+schema, cleans the description, and remembers that this source needs its arguments re-wrapped
+at call time:
+
+```jsonc
+// what Hitch projects into WebMCP
+{
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "latitude":  { "type": "number", "description": "Latitude in decimal degrees." },
+      "longitude": { "type": "number", "description": "Longitude in decimal degrees." }
+    },
+    "required": ["latitude", "longitude"],
+    "additionalProperties": false
+  }
+}
+```
+
+The agent calls `check_air_quality({ latitude, longitude })`. The bridge absorbs the source's
+quirk on the way out. This is the clearest example of the layer earning its place: it is not
+forwarding a protocol, it is presenting a better contract than the source published.
+
 ## Capability sources in this build
 
 ### 1. n8n — the flagship
@@ -247,6 +289,8 @@ Deploy: `npm run deploy` (app) and `npm run deploy:source` (the demo capability 
 - Server-side MCP execution proxy with live-discovery allowlisting
 - Agent activity auditing for every call
 - n8n MCP Server Trigger integration as a user-owned capability source
+- Capability harmonisation: recovering real JSON Schemas from opaque source contracts
+- Connect-your-own-MCP with an expiring credential handle and an SSRF guard
 - A standalone MCP server so the demo needs nothing of ours to run
 
 ## What this is not

@@ -15,9 +15,10 @@
     "@modelcontextprotocol/sdk": "^1.20.2"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260903.1",
+    "playwright": "^1.62.1",
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
-    "wrangler": "^4.105.0",
-    "@cloudflare/workers-types": "^5.20260903.1"
+    "wrangler": "^4.105.0"
   }
 }

@@ -7,6 +7,7 @@
  */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { harmonizeTool, wrapArguments, type HarmonizedTool } from "./harmonize";
 
 export interface SourceConfig {
   /** Stable id used by the frontend and by /api/execute. */
@@ -53,17 +54,24 @@ async function withClient<T>(source: SourceConfig, fn: (client: Client) => Promi
   }
 }
 
-/** MCP `tools/list` against one capability source. */
-export async function listTools(source: SourceConfig): Promise<DiscoveredTool[]> {
+function toDiscovered(t: any): DiscoveredTool {
+  return {
+    name: t.name,
+    title: t.title ?? t.annotations?.title,
+    description: t.description,
+    inputSchema: (t.inputSchema ?? { type: "object", properties: {} }) as Record<string, unknown>,
+    annotations: t.annotations,
+  };
+}
+
+/**
+ * MCP `tools/list` against one capability source, harmonised into clean
+ * capability contracts. See ./harmonize.ts for what that means and why.
+ */
+export async function listTools(source: SourceConfig): Promise<HarmonizedTool[]> {
   return withClient(source, async (client) => {
     const result = await client.listTools();
-    return (result.tools ?? []).map((t: any) => ({
-      name: t.name,
-      title: t.title ?? t.annotations?.title,
-      description: t.description,
-      inputSchema: (t.inputSchema ?? { type: "object", properties: {} }) as Record<string, unknown>,
-      annotations: t.annotations,
-    }));
+    return (result.tools ?? []).map((t: any) => harmonizeTool(toDiscovered(t)));
   });
 }
 
@@ -81,11 +89,15 @@ export async function callTool(
 ): Promise<unknown> {
   return withClient(source, async (client) => {
     const listed = await client.listTools();
-    const allowed = (listed.tools ?? []).some((t: any) => t.name === name);
-    if (!allowed) {
+    const match = (listed.tools ?? []).find((t: any) => t.name === name);
+    if (!match) {
       throw new Error(`Capability "${name}" is not offered by source "${source.id}".`);
     }
-    return client.callTool({ name, arguments: args });
+
+    // Re-derive how this source wants its arguments, then absorb the quirk here
+    // so the agent never had to know about it.
+    const { wrapsArguments } = harmonizeTool(toDiscovered(match));
+    return client.callTool({ name, arguments: wrapArguments(args, wrapsArguments) });
   });
 }
 
