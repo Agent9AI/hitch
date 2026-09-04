@@ -270,12 +270,29 @@ made without WebMCP present are labelled `local only` rather than pretending an 
 ```bash
 npm install
 cp .env.example .dev.vars     # point MCP_* at your own capability sources
-npm run build
-npx wrangler dev              # bridge on :8787
+npm run build                 # build the client into dist/
+npm run dev:api               # bridge on :8787
 npm run dev                   # UI on :5173, proxying /api to the bridge
 ```
 
-Deploy: `npm run deploy` (app) and `npm run deploy:source` (the demo capability source).
+Deploy your own:
+
+```bash
+npm run deploy                # the app
+npm run deploy:source         # the bundled demo MCP capability source
+```
+
+The app needs one KV namespace (`LEASES`, for connect-your-own-MCP handles); the demo source
+needs a KV namespace (`TASKS`) and the Workers AI binding. Set capability sources as secrets,
+never as vars:
+
+```bash
+npx wrangler secret put MCP_N8N_URL
+npx wrangler secret put MCP_N8N_TOKEN
+```
+
+You do not need any of that to try the concept, though: run the app with no secrets at all and
+use **Connect your own capability source** in the page to point it at any MCP server you have.
 
 ---
 
