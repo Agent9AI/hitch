@@ -8,8 +8,8 @@ Everything is built, deployed and verified. This is what you need and nothing el
 | --- | --- |
 | **Live app** | https://hitch.agent9.dev |
 | **Repo** | https://github.com/Agent9AI/hitch (public, MIT detected) |
-| **Demo video script** | [docs/DEMO.md](DEMO.md) — beat by beat, timed to 2:20 |
-| **Devpost copy** | [docs/DEVPOST.md](DEVPOST.md) — paste straight in |
+| **Demo video script** | [docs/DEMO.md](DEMO.md), beat by beat, timed to 2:20 |
+| **Devpost copy** | [docs/DEVPOST.md](DEVPOST.md), paste straight in |
 | Capability source (own MCP server) | https://hitch-capability-source.terry-c87.workers.dev/mcp |
 | n8n MCP source | on eagle, exposed through the existing tunnel, bearer-protected |
 

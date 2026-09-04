@@ -88,7 +88,7 @@ async function resolveLease(env: Env, sourceId: string): Promise<SourceConfig | 
 }
 
 /**
- * POST /api/connect — attach a capability source the user owns.
+ * POST /api/connect, attach a capability source the user owns.
  */
 async function handleConnect(request: Request, env: Env): Promise<Response> {
   let body: any;

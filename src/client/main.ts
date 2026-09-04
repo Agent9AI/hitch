@@ -1,5 +1,5 @@
 /**
- * Hitch — application shell.
+ * Hitch, application shell.
  *
  * Holds no credentials, no MCP endpoints and no tokens. It renders discovered
  * capability contracts, records the user's grants, and delegates every

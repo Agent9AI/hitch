@@ -49,7 +49,7 @@ resolving, and the user reconnects.
 POST /api/execute { source, tool, arguments }
         │
         ├─ resolve source           preconfigured, or a lease handle from KV
-        ├─ tools/list               MCP — re-check the allowlist, live
+        ├─ tools/list               MCP, re-check the allowlist, live
         ├─ reject unknown names
         ├─ tools/call               MCP
         ├─ normalizeMcpResult()
@@ -100,8 +100,8 @@ src/worker/
 ## The demo capability source
 
 `src/sources/cloud-source.ts` is a separate Worker, deployed separately, on a
-separate origin. It implements MCP Streamable HTTP directly — roughly 200 lines
-of protocol handling — so the repository contains both halves of a real MCP
+separate origin. It implements MCP Streamable HTTP directly, roughly 200 lines
+of protocol handling, so the repository contains both halves of a real MCP
 conversation and neither is mocked.
 
 It must not share a zone with the app: Cloudflare rejects Worker-to-Worker

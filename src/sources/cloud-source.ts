@@ -120,7 +120,7 @@ const TOOLS = [
 ];
 
 /* ------------------------------------------------------------------ *
- * Tool implementations — these are the parts that hold real credentials
+ * Tool implementations, these are the parts that hold real credentials
  * ------------------------------------------------------------------ */
 
 async function researchCompany(args: any) {

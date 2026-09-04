@@ -33,7 +33,7 @@ services itself: Gmail, GitHub, Notion, Slack, Drive, Calendar, your internal AP
 automation infrastructure. Each integration is a separate OAuth flow, a separate token,
 a separate silo, rebuilt site by site.
 
-Meanwhile the user usually already has all of that wired up somewhere — in n8n, in an MCP
+Meanwhile the user usually already has all of that wired up somewhere, in n8n, in an MCP
 server, in a local agent, on their own hardware.
 
 The capability exists. It just cannot travel.
@@ -81,13 +81,13 @@ That control layer is the point.
 ```
               Browser Agent  (ChatGPT in-app browser / Chrome WebMCP)
                     │
-                    │  WebMCP — document.modelContext.registerTool()
+                    │  WebMCP, document.modelContext.registerTool()
                     ▼
               Hitch page   (no credentials, no MCP endpoints, no tokens)
                     │
                     │  same-origin HTTPS:  POST /api/execute { source, tool, arguments }
                     ▼
-            Capability Bridge  (Cloudflare Worker — the only privileged code)
+            Capability Bridge  (Cloudflare Worker, the only privileged code)
                     │
                     │  MCP Streamable HTTP  (official @modelcontextprotocol/sdk client)
                     ▼
@@ -148,7 +148,7 @@ A capability can be visible, described, risk-labelled and still completely unava
 ## How MCP is used
 
 Real MCP, over the network, with the official TypeScript SDK and
-`StreamableHTTPClientTransport` — see [`src/worker/mcp/client.ts`](src/worker/mcp/client.ts).
+`StreamableHTTPClientTransport`. See [`src/worker/mcp/client.ts`](src/worker/mcp/client.ts).
 
 - `GET /api/capabilities` → `initialize` + `tools/list` against every configured source
 - `POST /api/execute` → `tools/list` (to re-check the allowlist) + `tools/call`
@@ -201,7 +201,7 @@ forwarding a protocol, it is presenting a better contract than the source publis
 
 ## Capability sources in this build
 
-### 1. n8n — the flagship
+### 1. n8n, the flagship
 
 A self-hosted n8n instance exposing an **MCP Server Trigger** (Streamable HTTP), protected
 with bearer auth. The token lives in the Worker as a secret and is never serialised to the page.
@@ -210,11 +210,11 @@ n8n matters here because it is already the boundary between agents and real serv
 the Gmail token, the GitHub key, the database password. Hitch asks it for a *capability*, and
 n8n keeps the credential. The website gets neither.
 
-### 2. Hitch Cloud Source — always available
+### 2. Hitch Cloud Source, always available
 
 A separate MCP server ([`src/sources/cloud-source.ts`](src/sources/cloud-source.ts)) running as
 its own Cloudflare Worker on its own origin, reached over the public internet exactly like any
-third-party MCP server. It holds a Workers AI model binding and a KV task store — credentials
+third-party MCP server. It holds a Workers AI model binding and a KV task store, credentials
 the page also never sees.
 
 It exists so a judge always has a live capability source, without needing our hardware, our
@@ -331,4 +331,4 @@ capability profiles that follow the user between sites.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

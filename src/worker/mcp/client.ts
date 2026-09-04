@@ -1,5 +1,5 @@
 /**
- * MCP client — the server side of the capability bridge.
+ * MCP client, the server side of the capability bridge.
  *
  * Everything in this file runs on the server. The MCP endpoint URLs and any
  * bearer tokens they need are read from environment bindings and are never
