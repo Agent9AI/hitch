@@ -34,6 +34,30 @@ import { executeCapability } from "../api";
 import { audit } from "../audit/events";
 import { getModelContext } from "./support";
 
+/** The response shape WebMCP requires from `execute`. */
+export interface ToolResponse {
+  content: Array<{ type: "text"; text: string }>;
+  structuredContent?: unknown;
+  isError?: boolean;
+}
+
+/**
+ * Render a capability result as a WebMCP tool response.
+ *
+ * Text results are passed through as prose. Anything structured is serialised
+ * into the text block (so every agent can read it) and also attached as
+ * `structuredContent` for agents that understand it.
+ */
+export function toToolResponse(value: unknown): ToolResponse {
+  if (typeof value === "string") {
+    return { content: [{ type: "text", text: value }] };
+  }
+  return {
+    content: [{ type: "text", text: JSON.stringify(value, null, 2) }],
+    structuredContent: value as Record<string, unknown>,
+  };
+}
+
 interface Lease {
   /** Aborting this is what unregisters the tool. */
   controller: AbortController;
@@ -75,7 +99,7 @@ export function isRegistered(name: string): boolean {
  * written to the audit log before and after the call.
  */
 function buildExecutor(capability: Capability) {
-  return async (input: any): Promise<string> => {
+  return async (input: any): Promise<ToolResponse> => {
     const startedAt = performance.now();
 
     audit({
@@ -104,9 +128,10 @@ function buildExecutor(capability: Capability) {
       });
       onExecution(capability.name, "success");
 
-      // Hand the agent the structured payload when the source gave us one,
-      // otherwise the flattened text.
-      return JSON.stringify(result.data ?? result.text ?? result.raw ?? null);
+      // WebMCP requires a content-block response, the same shape MCP itself
+      // uses. Returning a bare string here is the kind of thing that works in
+      // a lenient host and fails in a conforming one.
+      return toToolResponse(result.data ?? result.text ?? result.raw ?? null);
     } catch (error: any) {
       audit({
         tool: capability.name,
@@ -147,28 +172,39 @@ export async function projectCapability(capability: Capability): Promise<void> {
     return;
   }
 
-  await modelContext.registerTool(
-    {
-      name: capability.name,
-      title: capability.title,
-      description: capability.description,
+  // The properties the specification documents. Every conforming host accepts
+  // exactly this.
+  const core = {
+    name: capability.name,
+    // The source's JSON Schema is passed through untouched. The agent sees
+    // exactly the contract the capability actually publishes.
+    inputSchema: capability.inputSchema,
+    description: capability.description,
+    execute,
+  };
 
-      // The source's JSON Schema is passed through untouched. The agent sees
-      // exactly the contract the capability actually publishes.
-      inputSchema: capability.inputSchema,
-
-      annotations: {
-        readOnlyHint: capability.risk === "read",
-        destructiveHint: capability.risk === "dangerous",
-        // Results come from a third-party capability source, so their content
-        // is data to show the user, never instructions to follow.
-        untrustedContentHint: true,
-      },
-
-      execute,
+  // Additions that carry the capability's risk profile through to the agent.
+  // They are part of the MCP tool shape and are accepted by hosts that support
+  // them, but a strict host may reject an unknown key, and losing the tool
+  // entirely would be a far worse outcome than losing a hint.
+  const enriched = {
+    ...core,
+    title: capability.title,
+    annotations: {
+      readOnlyHint: capability.risk === "read",
+      destructiveHint: capability.risk === "dangerous",
+      // Results come from a third-party capability source, so their content
+      // is data to show the user, never instructions to follow.
+      untrustedContentHint: true,
     },
-    { signal: controller.signal },
-  );
+  };
+
+  try {
+    await modelContext.registerTool(enriched, { signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) throw error;
+    await modelContext.registerTool(core, { signal: controller.signal });
+  }
 
   leases.set(capability.name, { controller, execute, registered: true });
 
@@ -219,11 +255,11 @@ export async function invokeProjected(name: string, input: unknown): Promise<unk
  * Ask the browser what it currently believes is registered, so the UI can show
  * real WebMCP state rather than our own bookkeeping.
  */
-export function inspectRegisteredTools(): string[] | null {
+export async function inspectRegisteredTools(): Promise<string[] | null> {
   const ctx = getModelContext();
   if (!ctx?.getTools) return null;
   try {
-    const tools = ctx.getTools() as any[];
+    const tools = (await ctx.getTools()) as any[];
     return tools.map((t) => t?.name).filter(Boolean);
   } catch {
     return null;

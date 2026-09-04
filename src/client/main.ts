@@ -27,6 +27,10 @@ let capabilities: Capability[] = [];
 let sources: CapabilitySource[] = [];
 const running = new Set<string>();
 
+/** What the browser itself reports as registered. Refreshed after every grant
+ *  and revocation, so the lease panel shows WebMCP's truth, not our bookkeeping. */
+let registeredNames: string[] | null = null;
+
 const RISK_LABEL: Record<string, string> = {
   read: "read",
   generate: "generative",
@@ -165,7 +169,7 @@ function renderLease() {
       Discovery is not permission: capabilities exist above, but none of them have been projected.
     </div>`;
   } else {
-    const registered = inspectRegisteredTools();
+    const registered = registeredNames;
     host.innerHTML =
       granted
         .map(
@@ -378,6 +382,11 @@ $("revoke-all").addEventListener("click", () => {
 
 /* --------------------------------- boot --------------------------------- */
 
+async function refreshRegistered() {
+  registeredNames = await inspectRegisteredTools();
+  renderLease();
+}
+
 function renderAll() {
   renderSources();
   renderCapabilities();
@@ -390,6 +399,8 @@ function renderAll() {
   demoBtn.textContent = ready ? "Ready for your agent" : `Grant the ${present || 3} it needs`;
   demoBtn.classList.toggle("grant", true);
   demoBtn.classList.toggle("on", ready);
+
+  void refreshRegistered();
 }
 
 async function boot() {

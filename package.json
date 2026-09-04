@@ -11,7 +11,10 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.worker.json",
     "deploy": "npm run build && wrangler deploy",
     "deploy:source": "wrangler deploy --config wrangler.source.jsonc",
-    "capture": "node scripts/capture.mjs docs/hero.png"
+    "capture": "node scripts/capture.mjs docs/hero.png",
+    "test": "npm run test:unit && npm run test:webmcp",
+    "test:unit": "node --experimental-strip-types --test tests/harmonize.test.ts",
+    "test:webmcp": "node --test tests/webmcp.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2"
