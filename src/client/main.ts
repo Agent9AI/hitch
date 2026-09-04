@@ -1,5 +1,5 @@
 /**
- * Loadout — application shell.
+ * Hitch — application shell.
  *
  * Holds no credentials, no MCP endpoints and no tokens. It renders discovered
  * capability contracts, records the user's grants, and delegates every
@@ -54,7 +54,7 @@ function renderWebMCPStatus() {
     pill.innerHTML = `<span class="dot"></span>WebMCP unavailable`;
     notice.hidden = false;
     notice.innerHTML =
-      `<b>This browser does not expose WebMCP.</b> Loadout still discovers your capabilities over a real MCP ` +
+      `<b>This browser does not expose WebMCP.</b> Hitch still discovers your capabilities over a real MCP ` +
       `connection and the bridge still executes them, so you can exercise the whole path with the local test call ` +
       `below. To see capabilities registered as live agent tools, open this page in ChatGPT's in-app browser, or ` +
       `in Chrome with the WebMCP flag enabled, where <code>document.modelContext</code> is present.`;

@@ -1,5 +1,5 @@
 /**
- * Loadout capability bridge (server).
+ * Hitch capability bridge (server).
  *
  * Two endpoints, and that is the whole server surface:
  *
@@ -25,7 +25,7 @@ interface Env {
 /** How long a connection lease to a user-supplied source survives. */
 const LEASE_TTL_SECONDS = 60 * 60;
 
-const DEFAULT_CLOUD_URL = "https://loadout-capability-source.terry-c87.workers.dev/mcp";
+const DEFAULT_CLOUD_URL = "https://hitch-capability-source.terry-c87.workers.dev/mcp";
 
 /** Capability sources are server configuration. The browser learns their
  *  names, never their addresses or their tokens. */
@@ -33,7 +33,7 @@ function sources(env: Env): SourceConfig[] {
   const list: SourceConfig[] = [
     {
       id: "cloud",
-      label: "Loadout Cloud Source",
+      label: "Hitch Cloud Source",
       blurb: "A hosted MCP server holding a text-generation model and a task store.",
       url: env.MCP_CLOUD_URL || DEFAULT_CLOUD_URL,
     },

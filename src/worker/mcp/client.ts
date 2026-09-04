@@ -34,7 +34,7 @@ export interface DiscoveredTool {
  */
 async function withClient<T>(source: SourceConfig, fn: (client: Client) => Promise<T>): Promise<T> {
   const client = new Client(
-    { name: "loadout-capability-bridge", version: "0.1.0" },
+    { name: "hitch-capability-bridge", version: "0.1.0" },
     { capabilities: {} },
   );
 

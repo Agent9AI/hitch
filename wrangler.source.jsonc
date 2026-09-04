@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "loadout-capability-source",
+  "name": "hitch-capability-source",
   "main": "src/sources/cloud-source.ts",
   "compatibility_date": "2026-09-01",
   "account_id": "c877f22ba096e7fa67fda6b915fc7b08",

@@ -1,6 +1,6 @@
 # Security model
 
-Loadout's entire reason to exist is the boundary between a capability and the
+Hitch's entire reason to exist is the boundary between a capability and the
 credential behind it. This document states what is actually enforced, and what
 is not.
 
@@ -31,7 +31,7 @@ authority is always a subset of the source's.
 from `projectCapability()`, which is only called from a user click.
 
 **Context.** Tools are registered into this document's model context. WebMCP
-scopes them to the document and origin, and Loadout does not attempt to escape
+scopes them to the document and origin, and Hitch does not attempt to escape
 that scoping.
 
 **Time.** A grant lives for the page session. A connection lease to a
@@ -80,7 +80,7 @@ lease policy beyond the session, no argument constraints, no spend limits and
 no confirmation gate for destructive capabilities. Those are the natural next
 layer and are named as future work rather than implied by the UI.
 
-A capability source is trusted to describe itself honestly. Loadout classifies
+A capability source is trusted to describe itself honestly. Hitch classifies
 and constrains what it advertises, but it does not verify that a source's
 implementation matches its description. Signed capability manifests are the
 answer there, and are not built here.

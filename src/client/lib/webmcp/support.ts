@@ -4,7 +4,7 @@ import type { ModelContext } from "../../types/webmcp";
  * Resolve the WebMCP entry point.
  *
  * The spec draft puts it on `document.modelContext`. Some shipping builds
- * expose it on `navigator.modelContext`. Loadout accepts either rather than
+ * expose it on `navigator.modelContext`. Hitch accepts either rather than
  * failing on a browser that is genuinely WebMCP-capable.
  */
 export function getModelContext(): ModelContext | undefined {

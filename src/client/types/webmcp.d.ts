@@ -1,6 +1,6 @@
 /**
  * Minimal ambient types for the WebMCP imperative API.
- * Kept small on purpose: only what Loadout actually calls.
+ * Kept small on purpose: only what Hitch actually calls.
  */
 export interface WebMCPToolDescriptor {
   name: string;

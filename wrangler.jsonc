@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "loadout",
+  "name": "hitch",
   "main": "src/worker/index.ts",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -14,7 +14,7 @@
     "directory": "./dist",
     "binding": "ASSETS"
   },
-  "routes": [{ "pattern": "loadout.agent9.dev", "custom_domain": true }],
+  "routes": [{ "pattern": "hitch.agent9.dev", "custom_domain": true }],
   "observability": { "enabled": true },
   "vars": {
     // Non-secret defaults. The n8n bearer token, if the source needs one,

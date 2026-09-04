@@ -1,18 +1,18 @@
-# Loadout
+# Hitch
 
 **Your capabilities. Your agent. Your control.**
 
-🔗 **Live demo: [loadout.agent9.dev](https://loadout.agent9.dev)** · MIT licensed · built for the [WebMCP Challenge](https://webmcp.devpost.com/)
+🔗 **Live demo: [hitch.agent9.dev](https://hitch.agent9.dev)** · MIT licensed · built for the [WebMCP Challenge](https://webmcp.devpost.com/)
 
 ---
 
 WebMCP gives websites a structured way to expose capabilities to AI agents.
 
-Loadout explores the inverse:
+Hitch explores the inverse:
 
 > **What if users could bring capabilities they already own to the web?**
 
-Loadout connects to MCP capability sources you control, discovers what they offer,
+Hitch connects to MCP capability sources you control, discovers what they offer,
 lets you grant only the capabilities you choose, registers those grants into the page
 with `document.modelContext.registerTool()`, executes them back through MCP, and shows
 every agent call in an audit trail you can revoke from at any moment.
@@ -63,11 +63,11 @@ Three layers, and the middle one is the product:
 | Layer | What it is | In this build |
 | --- | --- | --- |
 | **Source** | Capabilities the user already owns | n8n, hosted MCP servers |
-| **Control** | Discovery, risk classification, leases, audit, revocation | Loadout |
+| **Control** | Discovery, risk classification, leases, audit, revocation | Hitch |
 | **Surface** | The browser-native agent interface | WebMCP |
 
 This is deliberately not a protocol proxy. A proxy says *protocol A → protocol B*.
-Loadout says *discover → classify → approve → lease → project → observe → revoke*.
+Hitch says *discover → classify → approve → lease → project → observe → revoke*.
 That control layer is the point.
 
 ---
@@ -79,7 +79,7 @@ That control layer is the point.
                     │
                     │  WebMCP — document.modelContext.registerTool()
                     ▼
-              Loadout page   (no credentials, no MCP endpoints, no tokens)
+              Hitch page   (no credentials, no MCP endpoints, no tokens)
                     │
                     │  same-origin HTTPS:  POST /api/execute { source, tool, arguments }
                     ▼
@@ -89,7 +89,7 @@ That control layer is the point.
                     ▼
         ┌───────────────────────┬────────────────────────────┐
         ▼                       ▼                            
-   n8n (self-hosted)     Loadout Cloud Source        …any MCP server
+   n8n (self-hosted)     Hitch Cloud Source        …any MCP server
    bearer token          model + task store
    holds credentials     holds credentials
 ```
@@ -163,10 +163,10 @@ A self-hosted n8n instance exposing an **MCP Server Trigger** (Streamable HTTP),
 with bearer auth. The token lives in the Worker as a secret and is never serialised to the page.
 
 n8n matters here because it is already the boundary between agents and real services: it holds
-the Gmail token, the GitHub key, the database password. Loadout asks it for a *capability*, and
+the Gmail token, the GitHub key, the database password. Hitch asks it for a *capability*, and
 n8n keeps the credential. The website gets neither.
 
-### 2. Loadout Cloud Source — always available
+### 2. Hitch Cloud Source — always available
 
 A separate MCP server ([`src/sources/cloud-source.ts`](src/sources/cloud-source.ts)) running as
 its own Cloudflare Worker on its own origin, reached over the public internet exactly like any
@@ -209,7 +209,7 @@ More detail: [docs/SECURITY.md](docs/SECURITY.md) · [docs/ARCHITECTURE.md](docs
 
 ## Try it
 
-1. Open **[loadout.agent9.dev](https://loadout.agent9.dev)** in ChatGPT's in-app browser, or in
+1. Open **[hitch.agent9.dev](https://hitch.agent9.dev)** in ChatGPT's in-app browser, or in
    Chrome with WebMCP enabled.
 2. Capabilities are discovered live over MCP. **Grant** the ones you want.
 3. Ask your agent something that needs them, for example:
@@ -249,8 +249,8 @@ Deploy: `npm run deploy` (app) and `npm run deploy:source` (the demo capability 
 
 ## What this is not
 
-Loadout does not inject tools into arbitrary websites. WebMCP scopes registered tools to a
-document and its origin, and that scoping is correct. What Loadout demonstrates is the
+Hitch does not inject tools into arbitrary websites. WebMCP scopes registered tools to a
+document and its origin, and that scoping is correct. What Hitch demonstrates is the
 capability-projection primitive inside a WebMCP-native page.
 
 Making those user-owned capabilities portable **across** compatible web experiences is the

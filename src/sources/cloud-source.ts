@@ -1,10 +1,10 @@
 /**
- * Loadout Cloud Capability Source
+ * Hitch Cloud Capability Source
  * ================================
  * A real, standalone MCP server speaking Streamable HTTP (2025-06-18).
  *
  * This deliberately runs as its OWN Cloudflare Worker on its OWN origin. It is
- * not part of the Loadout app. The Loadout capability bridge reaches it over the
+ * not part of the Hitch app. The Hitch capability bridge reaches it over the
  * public internet with the official MCP client, exactly as it reaches n8n.
  *
  * Why it exists: the n8n capability source is a self-hosted instance. This
@@ -12,7 +12,7 @@
  * capability source to project into WebMCP.
  *
  * The credentials this source holds (Workers AI binding, KV namespace) are never
- * visible to the Loadout page or to the browser agent. They stay here.
+ * visible to the Hitch page or to the browser agent. They stay here.
  */
 
 interface Env {
@@ -132,7 +132,7 @@ async function researchCompany(args: any) {
     `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
       company,
     )}&format=json&srlimit=1&origin=*`,
-    { headers: { "user-agent": "loadout-capability-source/0.1" } },
+    { headers: { "user-agent": "hitch-capability-source/0.1" } },
   );
 
   let summary = "";
@@ -146,7 +146,7 @@ async function researchCompany(args: any) {
       title = hit.title;
       const page = await fetch(
         `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
-        { headers: { "user-agent": "loadout-capability-source/0.1" } },
+        { headers: { "user-agent": "hitch-capability-source/0.1" } },
       );
       if (page.ok) {
         const p: any = await page.json();
@@ -307,12 +307,12 @@ async function handleMessage(msg: any, env: Env): Promise<any | null> {
         protocolVersion: version,
         capabilities: { tools: { listChanged: false } },
         serverInfo: {
-          name: "loadout-cloud-capability-source",
-          title: "Loadout Cloud Capability Source",
+          name: "hitch-cloud-capability-source",
+          title: "Hitch Cloud Capability Source",
           version: "0.1.0",
         },
         instructions:
-          "A demonstration capability source for Loadout. Holds its own model and storage credentials; exposes four capabilities to authorised MCP clients.",
+          "A demonstration capability source for Hitch. Holds its own model and storage credentials; exposes four capabilities to authorised MCP clients.",
       });
     }
 
@@ -366,7 +366,7 @@ export default {
       return new Response(
         JSON.stringify(
           {
-            name: "Loadout Cloud Capability Source",
+            name: "Hitch Cloud Capability Source",
             transport: "MCP Streamable HTTP",
             endpoint: `${url.origin}/mcp`,
             protocolVersion: PROTOCOL_VERSION,
@@ -421,7 +421,7 @@ export default {
 
     const body = Array.isArray(payload) ? responses : responses[0];
     return Response.json(body, {
-      headers: { ...CORS, "mcp-session-id": "loadout-cloud-stateless" },
+      headers: { ...CORS, "mcp-session-id": "hitch-cloud-stateless" },
     });
   },
 };

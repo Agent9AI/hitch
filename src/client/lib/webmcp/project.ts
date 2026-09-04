@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- *  THE HEART OF LOADOUT
+ *  THE HEART OF HITCH
  * ============================================================================
  *
  *  Projection: turning a capability the user owns, discovered over MCP, into a
