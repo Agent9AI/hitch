@@ -4,7 +4,13 @@
 
 🔗 **Live demo: [hitch.agent9.dev](https://hitch.agent9.dev)** · MIT licensed · built for the [WebMCP Challenge](https://webmcp.devpost.com/)
 
-![Hitch: seven capabilities discovered from two MCP sources, three granted to the agent, every call audited](docs/hero.png)
+[![CI](https://github.com/Agent9AI/hitch/actions/workflows/ci.yml/badge.svg)](https://github.com/Agent9AI/hitch/actions/workflows/ci.yml)
+
+![Hitch: seven capabilities discovered from two MCP sources, three granted and registered in WebMCP, every call audited](docs/hero.png)
+
+<sub>Captured against the spec-faithful WebMCP implementation in
+[`tests/webmcp-shim.js`](tests/webmcp-shim.js), the same one the test suite runs. The tools
+shown are really registered; the calls in the activity log really executed.</sub>
 
 ---
 
@@ -264,6 +270,40 @@ More detail: [docs/SECURITY.md](docs/SECURITY.md) · [docs/ARCHITECTURE.md](docs
 Without a WebMCP browser the page still works: discovery and execution are real, and the
 **Local test call** panel invokes the exact closure that was handed to `registerTool`. Grants
 made without WebMCP present are labelled `local only` rather than pretending an agent can see them.
+
+## Tests
+
+The WebMCP surface is the thing this project is built on, so it is the thing the tests
+actually exercise. [`tests/webmcp-shim.js`](tests/webmcp-shim.js) is a deliberately strict,
+spec-faithful implementation of `document.modelContext`: it rejects descriptors the
+specification does not describe as valid, and it validates every `execute` response against
+the required content-block shape. The suite then drives the real page against it.
+
+```bash
+npm run test:unit     # capability harmonisation, pure logic
+npm run test:webmcp   # the real page against a conforming WebMCP host
+npm test              # both
+```
+
+What the integration suite asserts:
+
+| | |
+| --- | --- |
+| WebMCP is detected and reported honestly | ✅ |
+| Discovery registers nothing until the user grants | ✅ |
+| A grant registers a real tool visible to `getTools()` | ✅ |
+| The registered contract is the source's contract, unrewritten | ✅ |
+| `execute()` returns a spec-valid content-block response | ✅ |
+| Every call is written to the audit log with a duration | ✅ |
+| A failure surfaces the source's own message and is audited | ✅ |
+| A failure does not revoke the capability or break the page | ✅ |
+| Aborting the lease removes the tool from `getTools()` | ✅ |
+| A revoked capability cannot be invoked at all | ✅ |
+
+Writing these caught three real conformance bugs that no amount of local clicking would have
+found: `execute` was returning a bare string where the specification requires a content-block
+response, `getTools()` was being treated as synchronous, and a failing capability was throwing
+away the source's error message before it reached the agent.
 
 ## Run it yourself
 

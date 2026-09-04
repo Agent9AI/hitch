@@ -115,7 +115,12 @@ function renderCapabilities() {
               <div class="cap-title">${esc(c.title)}</div>
               <div class="cap-name">${esc(c.name)}</div>
             </div>
-            <button class="grant ${on ? "on" : ""}" data-grant="${esc(c.name)}">
+            <button
+              class="grant ${on ? "on" : ""}"
+              data-grant="${esc(c.name)}"
+              aria-pressed="${on}"
+              aria-label="${on ? "Revoke" : "Grant"} ${esc(c.title)}"
+            >
               ${on ? "Granted" : "Grant"}
             </button>
           </div>
@@ -285,20 +290,37 @@ $("test-run").addEventListener("click", async () => {
   // Calls the exact closure that was handed to registerTool. A human clicking
   // here and an agent calling the tool run the same function.
   try {
-    const result = await invokeProjected(cap.name, args);
-    out.textContent = typeof result === "string" ? formatJson(result) : JSON.stringify(result, null, 2);
+    out.textContent = readable(await invokeProjected(cap.name, args));
   } catch (err: any) {
     out.textContent = `Error: ${err?.message ?? String(err)}`;
   }
   renderAll();
 });
 
-function formatJson(value: string): string {
-  try {
-    return JSON.stringify(JSON.parse(value), null, 2);
-  } catch {
-    return value;
+/**
+ * Show what the agent actually receives, unwrapped.
+ *
+ * `execute` returns the WebMCP content-block envelope. Printing that verbatim
+ * buries the result under escaping, so unwrap to the structured payload when
+ * the capability provided one, and to the text block otherwise.
+ */
+function readable(value: unknown): string {
+  const response = value as { structuredContent?: unknown; content?: Array<{ text?: string }> };
+
+  if (response?.structuredContent !== undefined) {
+    return JSON.stringify(response.structuredContent, null, 2);
   }
+
+  const text = response?.content?.map((b) => b?.text ?? "").join("\n").trim();
+  if (text) {
+    try {
+      return JSON.stringify(JSON.parse(text), null, 2);
+    } catch {
+      return text;
+    }
+  }
+
+  return JSON.stringify(value, null, 2);
 }
 
 $("byo-connect").addEventListener("click", async () => {

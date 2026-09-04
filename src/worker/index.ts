@@ -43,7 +43,8 @@ function sources(env: Env): SourceConfig[] {
     list.push({
       id: "n8n",
       label: "n8n",
-      blurb: "A self-hosted n8n instance holding the credentials for its connected services.",
+      blurb:
+        "A self-hosted n8n instance. Hitch reaches it with a bearer token that never leaves the bridge.",
       url: env.MCP_N8N_URL,
       token: env.MCP_N8N_TOKEN,
     });

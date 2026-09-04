@@ -105,6 +105,33 @@ test("a revoked capability cannot be invoked at all", async () => {
   );
 });
 
+test("a failing capability surfaces cleanly and is audited as failed", async () => {
+  await page.click('button[data-grant="research_company"]');
+  await page.waitForTimeout(300);
+
+  // `company` is required by the source's schema. Omitting it must produce a
+  // clean error, not an unhandled rejection or a broken page.
+  await assert.rejects(
+    () => page.evaluate(() => window.__webmcpCall("research_company", {})),
+    /required|error/i,
+    "a rejected call should reject the agent's promise",
+  );
+
+  const log = await page.textContent("#activity");
+  assert.match(log, /failed|required/i, "the failure should appear in the audit log");
+
+  // The page must still be alive and usable.
+  assert.ok(await page.locator(".cap").count());
+  const tools = await registered();
+  assert.ok(
+    tools.some((t) => t.name === "research_company"),
+    "a failed call must not silently revoke the capability",
+  );
+
+  await page.click('button[data-grant="research_company"]');
+  await page.waitForTimeout(300);
+});
+
 test("the demo set grants exactly the three capabilities the prompt needs", async () => {
   await page.click("#grant-demo");
   await page.waitForTimeout(600);

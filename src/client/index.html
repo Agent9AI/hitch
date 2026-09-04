@@ -8,6 +8,24 @@
       name="description"
       content="Hitch is a user-controlled capability layer. Discover capabilities you already own over MCP, grant the ones you choose to the page, and let a browser agent use them through WebMCP without the page ever holding the credentials behind them."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Hitch" />
+    <meta property="og:title" content="Hitch: your capabilities, your agent, your control" />
+    <meta
+      property="og:description"
+      content="WebMCP in reverse. Bring capabilities you already own to any page, grant only what you choose, and revoke instantly, without the page ever holding your credentials."
+    />
+    <meta property="og:url" content="https://hitch.agent9.dev" />
+    <meta property="og:image" content="https://hitch.agent9.dev/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hitch: your capabilities, your agent, your control" />
+    <meta
+      name="twitter:description"
+      content="WebMCP in reverse. Bring capabilities you already own to any page."
+    />
+    <meta name="twitter:image" content="https://hitch.agent9.dev/og.png" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪝</text></svg>" />
     <link rel="stylesheet" href="./style.css" />
   </head>
@@ -84,11 +102,11 @@
                 holds your credential.
               </p>
               <div class="row">
-                <input id="byo-url" placeholder="https://your-server.example.com/mcp" />
-                <input id="byo-token" placeholder="bearer token (optional)" type="password" style="flex:0 1 200px" />
+                <input id="byo-url" type="url" aria-label="MCP server URL" placeholder="https://your-server.example.com/mcp" />
+                <input id="byo-token" type="password" aria-label="Bearer token, optional" placeholder="bearer token (optional)" style="flex:0 1 200px" />
                 <button id="byo-connect">Connect</button>
               </div>
-              <pre id="byo-out" hidden></pre>
+              <pre id="byo-out" aria-live="polite" hidden></pre>
             </div>
           </section>
 
@@ -120,7 +138,7 @@
               <h2>Agent activity</h2>
               <span class="meta" id="activity-meta">0 calls</span>
             </div>
-            <div class="panel-body tight log" id="activity"></div>
+            <div class="panel-body tight log" id="activity" role="log" aria-live="polite" aria-label="Agent activity" tabindex="0"></div>
 
             <div class="drawer">
               <h3>Local test call</h3>
@@ -129,11 +147,11 @@
                 verify the path without an agent. This is a test harness, not an agent.
               </p>
               <div class="row">
-                <select id="test-tool"></select>
-                <input id="test-args" placeholder='{"company":"Cloudflare"}' />
+                <select id="test-tool" aria-label="Capability to test"></select>
+                <input id="test-args" aria-label="Arguments as JSON" placeholder='{"company":"Cloudflare"}' />
                 <button id="test-run">Run</button>
               </div>
-              <pre id="test-out" hidden></pre>
+              <pre id="test-out" aria-live="polite" hidden></pre>
             </div>
           </section>
         </div>

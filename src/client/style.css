@@ -522,3 +522,27 @@ footer a:hover { color: var(--accent); }
   margin-bottom: 11px;
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ----------------------------- focus states ---------------------------- */
+
+:where(button, input, select, a):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* The activity log is a live region, so give it a sensible reading order and
+   keep it reachable by keyboard when it overflows. */
+.log:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

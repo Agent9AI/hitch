@@ -117,7 +117,15 @@ function buildExecutor(capability: Capability) {
         (input ?? {}) as Record<string, unknown>,
       );
 
-      if (!result.ok) throw new Error(result.error ?? "The capability returned an error.");
+      if (!result.ok) {
+        // A capability can fail two ways: the bridge could not reach it
+        // (`error`), or it ran and reported a problem (`text`, from the MCP
+        // error content). Either way the source's own words are the useful
+        // ones, so pass them through rather than a generic message.
+        throw new Error(
+          result.error ?? result.text ?? "The capability returned an error.",
+        );
+      }
 
       audit({
         tool: capability.name,
