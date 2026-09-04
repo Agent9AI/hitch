@@ -6,9 +6,11 @@
 
 ---
 
-WebMCP gives websites a structured way to expose capabilities to AI agents.
+**Hitch is WebMCP in reverse.** Instead of a website handing capabilities to your agent,
+you hand capabilities to the website.
 
-Hitch explores the inverse:
+WebMCP gives websites a structured way to expose capabilities to AI agents. Hitch asks the
+inverse question:
 
 > **What if users could bring capabilities they already own to the web?**
 

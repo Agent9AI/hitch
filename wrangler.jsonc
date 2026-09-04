@@ -16,10 +16,7 @@
   },
   "routes": [{ "pattern": "hitch.agent9.dev", "custom_domain": true }],
   "observability": { "enabled": true },
-  "vars": {
-    // Non-secret defaults. The n8n bearer token, if the source needs one,
-    // is set with `wrangler secret put MCP_N8N_TOKEN` and never lands here.
-    "MCP_N8N_URL": "",
-    "MCP_CLOUD_URL": ""
-  }
+  // MCP_CLOUD_URL, MCP_N8N_URL and MCP_N8N_TOKEN are set as secrets
+  // (`wrangler secret put`), never as vars, so no capability source address
+  // or token is ever committed to this repository.
 }

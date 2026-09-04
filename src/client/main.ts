@@ -35,6 +35,9 @@ const RISK_LABEL: Record<string, string> = {
   dangerous: "dangerous",
 };
 
+const shorten = (text: string, max: number) =>
+  text.length > max ? `${text.slice(0, max).trimEnd()}\u2026` : text;
+
 const esc = (s: unknown) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
@@ -72,7 +75,9 @@ function renderSources() {
         <span class="status"></span>
         <div style="min-width:0">
           <div class="name">${esc(s.label)}</div>
-          <div class="blurb">${esc(s.online ? s.blurb : s.error || "Source unreachable.")}</div>
+          <div class="blurb">${esc(
+            s.online ? s.blurb : shorten(s.error || "Source unreachable.", 110),
+          )}</div>
         </div>
         <div class="count">${s.online ? `${s.count} capabilities` : "offline"}</div>
       </div>`,

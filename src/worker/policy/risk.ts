@@ -25,10 +25,9 @@ const RISK_OVERRIDES: Record<string, CapabilityRisk> = {
   draft_launch_announcement: "generate",
   create_project_task: "write",
   // n8n capability source
+  geocode_place: "read",
   check_air_quality: "read",
-  summarise_url: "read",
-  compose_status_note: "generate",
-  log_capability_demo: "write",
+  get_weather_forecast: "read",
 };
 
 const READ_HINTS = /^(get|list|read|search|find|lookup|fetch|query|check|research|summar)/i;
