@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "loadout-capability-source",
+  "main": "src/sources/cloud-source.ts",
+  "compatibility_date": "2026-09-01",
+  "account_id": "c877f22ba096e7fa67fda6b915fc7b08",
+  "observability": { "enabled": true },
+  "ai": { "binding": "AI" },
+  "kv_namespaces": [
+    { "binding": "TASKS", "id": "cbc561525a0343b2b77a549c418c47d1" }
+  ]
+}

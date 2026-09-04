@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loadout — bring capabilities you own into WebMCP</title>
+    <meta
+      name="description"
+      content="Loadout is a user-controlled capability layer. Discover capabilities you already own over MCP, grant the ones you choose to the page, and let a browser agent use them through WebMCP without the page ever holding the credentials behind them."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎒</text></svg>" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div class="brand">
+          <div class="wordmark">Load<span>out</span></div>
+          <small>capability layer for the agentic web</small>
+        </div>
+        <div id="status-pills" style="display: flex; gap: 8px; flex-wrap: wrap">
+          <span class="pill" id="webmcp-pill"><span class="dot"></span>Checking WebMCP</span>
+        </div>
+      </header>
+
+      <div class="hero">
+        <h1>Your capabilities. Your agent. <em>Your control.</em></h1>
+        <p class="sub">
+          WebMCP lets a website hand capabilities to an agent. Loadout explores the inverse: you
+          bring capabilities you already own. Discover them over MCP, grant only the ones you
+          choose, watch every call, and revoke instantly — without the page ever receiving the
+          credentials behind them.
+        </p>
+
+        <div class="flow" id="flow">
+          <div class="flow-node" data-node="source">
+            <div class="k">Source</div>
+            <div class="v">Capabilities you own</div>
+            <div class="m">n8n · MCP servers</div>
+          </div>
+          <div class="flow-node" data-node="bridge">
+            <div class="k">Control</div>
+            <div class="v">Loadout bridge</div>
+            <div class="m">discover · classify · lease</div>
+          </div>
+          <div class="flow-node" data-node="webmcp">
+            <div class="k">Surface</div>
+            <div class="v">WebMCP</div>
+            <div class="m">registerTool()</div>
+          </div>
+          <div class="flow-node" data-node="agent">
+            <div class="k">Consumer</div>
+            <div class="v">Browser agent</div>
+            <div class="m">calls what you granted</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- LEFT ------------------------------------------------------- -->
+        <div>
+          <section class="panel" style="margin-bottom: 22px">
+            <div class="panel-head">
+              <h2>Capability sources</h2>
+              <span class="meta" id="source-meta">connecting…</span>
+            </div>
+            <div class="panel-body" id="sources"></div>
+
+            <div class="drawer">
+              <h3>Connect your own capability source</h3>
+              <p>
+                Paste any MCP server that speaks Streamable HTTP. Its tools become capabilities
+                here, and anything you grant becomes a live tool for your agent. The URL and token
+                go to the bridge once and come back as an expiring handle, so this page never
+                holds your credential.
+              </p>
+              <div class="row">
+                <input id="byo-url" placeholder="https://your-server.example.com/mcp" />
+                <input id="byo-token" placeholder="bearer token (optional)" type="password" style="flex:0 1 200px" />
+                <button id="byo-connect">Connect</button>
+              </div>
+              <pre id="byo-out" hidden></pre>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Your capabilities</h2>
+              <span class="meta" id="cap-meta"></span>
+            </div>
+            <div class="panel-body" id="capabilities">
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT ------------------------------------------------------ -->
+        <div>
+          <section class="panel" style="margin-bottom: 22px">
+            <div class="panel-head">
+              <h2>Active capability lease</h2>
+              <button class="ghost" id="revoke-all">Revoke all</button>
+            </div>
+            <div class="panel-body" id="lease"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Agent activity</h2>
+              <span class="meta" id="activity-meta">0 calls</span>
+            </div>
+            <div class="panel-body tight log" id="activity"></div>
+
+            <div class="drawer">
+              <h3>Local test call</h3>
+              <p>
+                Invokes a granted capability's WebMCP <code>execute()</code> directly, so you can
+                verify the path without an agent. This is a test harness, not an agent.
+              </p>
+              <div class="row">
+                <select id="test-tool"></select>
+                <input id="test-args" placeholder='{"company":"Cloudflare"}' />
+                <button id="test-run">Run</button>
+              </div>
+              <pre id="test-out" hidden></pre>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="n green" id="stat-projected">0</div>
+          <div class="l">Capabilities projected</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="stat-credentials">0</div>
+          <div class="l">Service credentials in this page</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="stat-calls">0</div>
+          <div class="l">Agent calls audited</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="stat-sources">0</div>
+          <div class="l">Live capability sources</div>
+        </div>
+      </div>
+
+      <div class="notice" id="webmcp-notice" hidden></div>
+
+      <footer>
+        <span>Loadout · WebMCP Challenge · MIT licensed</span>
+        <span>
+          <a href="https://github.com/Agent9AI/loadout" target="_blank" rel="noreferrer">Source</a>
+          &nbsp;·&nbsp;
+          <a href="https://github.com/Agent9AI/loadout/blob/main/src/client/lib/webmcp/project.ts" target="_blank" rel="noreferrer">
+            The projection code
+          </a>
+        </span>
+      </footer>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

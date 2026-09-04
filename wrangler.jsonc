@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "loadout",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "c877f22ba096e7fa67fda6b915fc7b08",
+  "kv_namespaces": [
+    // Holds short-lived connection leases for user-supplied capability
+    // sources, so a pasted MCP token never has to live in the browser.
+    { "binding": "LEASES", "id": "d4cf551bf3ab4da49ef6b00f3c4103ca" }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "routes": [{ "pattern": "loadout.agent9.dev", "custom_domain": true }],
+  "observability": { "enabled": true },
+  "vars": {
+    // Non-secret defaults. The n8n bearer token, if the source needs one,
+    // is set with `wrangler secret put MCP_N8N_TOKEN` and never lands here.
+    "MCP_N8N_URL": "",
+    "MCP_CLOUD_URL": ""
+  }
+}
